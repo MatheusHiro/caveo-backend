@@ -6,24 +6,27 @@ import { AppDataSource } from "../config/dataSource";
 const router = new Router();
 
 interface AuthRequestBody {
-    email: string;
-    name: string;
-    role: string;
-  }
-
-interface EditRequestBody{
-    name: string;
-    role: string
+  email: string;
+  name: string;
 }
 
+interface EditRequestBody {
+  name: string;
+  role: string
+}
+
+router.get('/', async (ctx) => {
+  ctx.body = "Hello, World!";
+});
+
 router.post('/auth', async (ctx) => {
-  const { email, name, role } = ctx.request.body as AuthRequestBody;
+  const { email, name } = ctx.request.body as AuthRequestBody;
   const userRepository = AppDataSource.getRepository(User);
 
   let user = await userRepository.findOne({ where: { email } });
 
   if (!user) {
-    user = userRepository.create({ email, name, role, isOnboarded: false });
+    user = userRepository.create({ email, name, role: "user", isOnboarded: false });
     await userRepository.save(user);
   }
 

@@ -1,13 +1,26 @@
-version: '3'
-
 services:
 
-  database:
-    image: postgres:11-alpine
+  db:
+    image: postgres:17-alpine
     restart: always
     expose:
       - "5432"
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: typescript-koa
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+    depends_on:
+      - db
