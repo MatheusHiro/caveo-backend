@@ -40,27 +40,38 @@ jobs:
 
           # SSH into the server
           ssh -i "Hirocaveobackend.pem" $EC2_USER@$EC2_HOST <<EOF
-            # Verificar se o diretório existe, se não, criar
+            export DB_USER="${DB_USER}"
+            export DB_PASSWORD="${DB_PASSWORD}"
+            export DB_NAME="${DB_NAME}"
+            export DB_HOST="${DB_HOST}"
+            export DB_PORT="${DB_PORT}"
+            export COGNITO_CLIENT_ID="${COGNITO_CLIENT_ID}"
+            export COGNITO_CLIENT_SECRET="${COGNITO_CLIENT_SECRET}"
+            export USER_POOL_ID="${USER_POOL_ID}"
+            export COGNITO_ADMIN_ACCESS_KEY="${COGNITO_ADMIN_ACCESS_KEY}"
+            export COGNITO_ADMIN_SECRET_ACCESS_KEY="${COGNITO_ADMIN_SECRET_ACCESS_KEY}"
+
+            # Verify if the directory exists, if it doesn't, create
             if [ ! -d "/home/ubuntu/caveo-backend" ]; then
-              echo "Diretório não encontrado. Criando diretório..."
+              echo "Directory not found. Creating..."
               mkdir -p /home/ubuntu/caveo-backend
             fi
 
             cd /home/ubuntu/caveo-backend
 
-            # Verificar se o repositório git existe
+            # Verify if git repo exists
             if [ ! -d "/home/ubuntu/caveo-backend/.git" ]; then
-              echo "Repositório git não encontrado. Clonando o repositório..."
+              echo "Repo not found. Clonning repo..."
               git clone https://${{ secrets.EC2_REPO_TOKEN }}@github.com/MatheusHiro/caveo-backend.git /home/ubuntu/caveo-backend
             else
-              echo "Repositório git encontrado. Atualizando..."
+              echo "Repo found. Updating..."
               cd /home/ubuntu/caveo-backend
               git pull origin master
             fi
 
-            # Verificar se o docker-compose está instalado
+            # Verify docker-compose installation
             if ! command -v docker-compose &> /dev/null; then
-              echo "docker-compose não encontrado. Instalando..."
+              echo "docker-compose not found. Installing..."
               sudo apt-get update
               sudo apt-get install -y docker-compose
             fi
@@ -69,7 +80,7 @@ jobs:
             docker-compose down
 
             # Updating env vars
-            echo "🔄 Atualizando variáveis de ambiente..."
+            echo "🔄 Updating env vars..."
             echo "DB_USER=$DB_USER" > .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
             echo "DB_NAME=$DB_NAME" >> .env
