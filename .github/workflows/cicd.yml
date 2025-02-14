@@ -34,6 +34,8 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > Hirocaveobackend.pem
           chmod 400 Hirocaveobackend.pem
 
+          ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+          
           ssh -i "Hirocaveobackend.pem" $EC2_USER@$EC2_HOST <<EOF
             cd /home/ubuntu/caveo-backend
             git pull origin master  
