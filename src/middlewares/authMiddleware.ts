@@ -2,21 +2,21 @@ import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
 import { Context, Next } from 'koa';
 
-const COGNITO_REGION = 'sa-east-1'; 
-const USER_POOL_ID = 'sa-east-1_AQPGUSyrG';
+const COGNITO_REGION = 'sa-east-1';
+const USER_POOL_ID = process.env.USER_POOL_ID;
 const JWKS_URI = `https://cognito-idp.${COGNITO_REGION}.amazonaws.com/${USER_POOL_ID}/.well-known/jwks.json`;
 
 const client = jwksClient({ jwksUri: JWKS_URI });
 
 function getKey(header: any, callback: any) {
-    client.getSigningKey(header.kid, (err, key) => {
-      if (err || !key) {
-        return callback(new Error("Error retrieving cognito key"));
-      }
-      callback(null, key.getPublicKey());
-    });
-  }
-  
+  client.getSigningKey(header.kid, (err, key) => {
+    if (err || !key) {
+      return callback(new Error("Error retrieving cognito key"));
+    }
+    callback(null, key.getPublicKey());
+  });
+}
+
 
 export async function authMiddleware(ctx: Context, next: Next) {
   try {
