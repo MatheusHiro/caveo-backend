@@ -18,13 +18,11 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_EC2_KEY }}
           EC2_USER: "ubuntu"
           EC2_HOST: ${{ secrets.EC2_HOST }}
-          
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_PORT: ${{ secrets.DB_PORT }}
-
           COGNITO_CLIENT_ID: ${{ secrets.COGNITO_CLIENT_ID }}
           COGNITO_CLIENT_SECRET: ${{ secrets.COGNITO_CLIENT_SECRET }}
           USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
@@ -34,19 +32,42 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > Hirocaveobackend.pem
           chmod 400 Hirocaveobackend.pem
 
+          # Create the .ssh directory if it doesn't exist
           mkdir -p ~/.ssh
 
+          # Automatically accept the host key
           ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
 
+          # SSH into the server
           ssh -i "Hirocaveobackend.pem" $EC2_USER@$EC2_HOST <<EOF
+            # Verificar se o diretório existe, se não, criar
+            if [ ! -d "/home/ubuntu/caveo-backend" ]; then
+              echo "Diretório não encontrado. Criando diretório..."
+              mkdir -p /home/ubuntu/caveo-backend
+            fi
+
             cd /home/ubuntu/caveo-backend
-            git pull origin master  
+
+            # Verificar se o repositório git existe
+            if [ ! -d ".git" ]; then
+              echo "Repositório git não encontrado. Clonando o repositório..."
+              git clone <repo_url> /home/ubuntu/caveo-backend
+            else
+              git pull origin master
+            fi
+
+            # Verificar se o docker-compose está instalado
+            if ! command -v docker-compose &> /dev/null; then
+              echo "docker-compose não encontrado. Instalando..."
+              sudo apt-get update
+              sudo apt-get install -y docker-compose
+            fi
 
             # Rebuild container and run
             docker-compose down
 
             # Updating env vars
-            echo "🔄 Updating env vars..."
+            echo "🔄 Atualizando variáveis de ambiente..."
             echo "DB_USER=$DB_USER" > .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
             echo "DB_NAME=$DB_NAME" >> .env
