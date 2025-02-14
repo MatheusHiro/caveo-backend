@@ -32,7 +32,7 @@ jobs:
           COGNITO_ADMIN_SECRET_ACCESS_KEY: ${{ secrets.COGNITO_ADMIN_SECRET_ACCESS_KEY }}
         run: |
           echo "$SSH_PRIVATE_KEY" > Hirocaveobackend.pem
-          chmod 400 "Hirocaveobackend.pem"
+          chmod 400 Hirocaveobackend.pem
 
           ssh -i "Hirocaveobackend.pem" $EC2_USER@$EC2_HOST <<EOF
             cd /home/ubuntu/caveo-backend
