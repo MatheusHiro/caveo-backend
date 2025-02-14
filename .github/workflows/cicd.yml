@@ -17,7 +17,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_EC2_KEY }}
           EC2_USER: "ubuntu"
-          EC2_HOST: ${{ secrets.EC_IP }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
           
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
