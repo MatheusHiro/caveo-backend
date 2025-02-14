@@ -40,21 +40,12 @@ jobs:
 
           # SSH into the server
           ssh -i "Hirocaveobackend.pem" $EC2_USER@$EC2_HOST <<EOF
-            # Verificar se o diretório existe, se não, criar
-            if [ ! -d "/home/ubuntu/caveo-backend" ]; then
-              echo "Diretório não encontrado. Criando diretório..."
-              mkdir -p /home/ubuntu/caveo-backend
-            fi
-
-            cd /home/ubuntu/caveo-backend
-
+            
             # Verificar se o repositório git existe
             if [ ! -d "/home/ubuntu/caveo-backend/.git" ]; then
               echo "Repositório git não encontrado. Clonando o repositório..."
-              git clone https://github.com/MatheusHiro/caveo-backend.git /home/ubuntu/caveo-backend
-            else
-              echo "Repositório git encontrado. Atualizando..."
-              cd /home/ubuntu/caveo-backend
+              git clone https://${{ secrets.EC2_REPO_TOKEN }}@github.com/MatheusHiro/caveo-backend.git .
+              cd caveo-backend
               git pull origin master
             fi
 
