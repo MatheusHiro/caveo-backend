@@ -1,0 +1,58 @@
+name: Deploy to EC-2
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  dockerize-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2 via SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_EC2_KEY }}
+          EC2_USER: "ubuntu"
+          EC2_HOST: ${{ secrets.EC_IP }}
+          
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+
+          COGNITO_CLIENT_ID: ${{ secrets.COGNITO_CLIENT_ID }}
+          COGNITO_CLIENT_SECRET: ${{ secrets.COGNITO_CLIENT_SECRET }}
+          USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
+          COGNITO_ADMIN_ACCESS_KEY: ${{ secrets.COGNITO_ADMIN_ACCESS_KEY }}
+          COGNITO_ADMIN_SECRET_ACCESS_KEY: ${{ secrets.COGNITO_ADMIN_SECRET_ACCESS_KEY }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > Hirocaveobackend.pem
+          chmod 600 Hirocaveobackend.pem
+
+          ssh -i Hirocaveobackend.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST <<EOF
+            cd /home/ubuntu/caveo-backend
+            git pull origin master  
+
+            # Rebuild container and run
+            docker-compose down
+
+            # Updating env vars
+            echo "🔄 Updating env vars..."
+            echo "DB_USER=$DB_USER" > .env
+            echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+            echo "DB_NAME=$DB_NAME" >> .env
+            echo "DB_HOST=$DB_HOST" >> .env
+            echo "DB_PORT=$DB_PORT" >> .env
+            echo "COGNITO_CLIENT_ID=$COGNITO_CLIENT_ID" >> .env
+            echo "COGNITO_CLIENT_SECRET=$COGNITO_CLIENT_SECRET" >> .env
+            echo "USER_POOL_ID=$USER_POOL_ID" >> .env
+            echo "COGNITO_ADMIN_ACCESS_KEY=$COGNITO_ADMIN_ACCESS_KEY" >> .env
+            echo "COGNITO_ADMIN_SECRET_ACCESS_KEY=$COGNITO_ADMIN_SECRET_ACCESS_KEY" >> .env
+
+            docker-compose up -d --build  # Rebuilding image locally
+          EOF
