@@ -49,10 +49,12 @@ jobs:
             cd /home/ubuntu/caveo-backend
 
             # Verificar se o repositório git existe
-            if [ ! -d ".git" ]; then
+            if [ ! -d "/home/ubuntu/caveo-backend/.git" ]; then
               echo "Repositório git não encontrado. Clonando o repositório..."
               git clone https://github.com/MatheusHiro/caveo-backend.git /home/ubuntu/caveo-backend
             else
+              echo "Repositório git encontrado. Atualizando..."
+              cd /home/ubuntu/caveo-backend
               git pull origin master
             fi
 
