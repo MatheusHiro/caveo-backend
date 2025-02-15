@@ -70,15 +70,17 @@ jobs:
 
             cd /home/ubuntu/caveo-backend
 
-            # Verify if git repo exists
-            if [ ! -d "/home/ubuntu/caveo-backend/.git" ]; then
-              echo "Repo not found. Clonning repo..."
-              git clone https://${{ secrets.EC2_REPO_TOKEN }}@github.com/MatheusHiro/caveo-backend.git /home/ubuntu/caveo-backend
-            else
-              echo "Repo found. Updating..."
-              cd /home/ubuntu/caveo-backend
-              git pull origin master
-            fi
+            # Create .env file with the environment variables
+            echo "DB_USER=${DB_USER}" > /home/ubuntu/caveo-backend/.env
+            echo "DB_PASSWORD=${DB_PASSWORD}" >> /home/ubuntu/caveo-backend/.env
+            echo "DB_NAME=${DB_NAME}" >> /home/ubuntu/caveo-backend/.env
+            echo "DB_HOST=${DB_HOST}" >> /home/ubuntu/caveo-backend/.env
+            echo "DB_PORT=${DB_PORT}" >> /home/ubuntu/caveo-backend/.env
+            echo "COGNITO_CLIENT_ID=${COGNITO_CLIENT_ID}" >> /home/ubuntu/caveo-backend/.env
+            echo "COGNITO_CLIENT_SECRET=${COGNITO_CLIENT_SECRET}" >> /home/ubuntu/caveo-backend/.env
+            echo "USER_POOL_ID=${USER_POOL_ID}" >> /home/ubuntu/caveo-backend/.env
+            echo "COGNITO_ADMIN_ACCESS_KEY=${COGNITO_ADMIN_ACCESS_KEY}" >> /home/ubuntu/caveo-backend/.env
+            echo "COGNITO_ADMIN_SECRET_ACCESS_KEY=${COGNITO_ADMIN_SECRET_ACCESS_KEY}" >> /home/ubuntu/caveo-backend/.env
 
             # Verify docker-compose installation
             if ! command -v docker-compose &> /dev/null; then
@@ -88,8 +90,8 @@ jobs:
             fi
 
             # Pull the latest image from Docker Hub
-            docker pull ${{ secrets.DOCKER_USERNAME }}/caveo-backend:latest
+            docker pull ${{ vars.DOCKERHUB_USERNAME }}/caveo-backend:latest
 
             # Run the Docker container
-            docker run -d --restart always --env-file /home/ubuntu/caveo-backend/.env ${{ secrets.DOCKER_USERNAME }}/caveo-backend:latest
+            docker run -d --restart always --env-file /home/ubuntu/caveo-backend/.env ${{ vars.DOCKERHUB_USERNAME }}/caveo-backend:latest
           EOF
