@@ -46,7 +46,7 @@ jobs:
               exit 0  # Continue with the scp only if the file is missing
             else
               echo "docker-compose.yml already exists on the EC2 instance. No need to copy."
-              exit 1  # Skip the copying step if the file exists
+              exit 0  # Return success if the file exists (so the script continues)
             fi
           EOF
 
@@ -56,6 +56,7 @@ jobs:
           else
             echo "Skipping copy of docker-compose.yml as it already exists."
           fi
+
 
       - name: Deploy to EC2 via SSH
         env:
