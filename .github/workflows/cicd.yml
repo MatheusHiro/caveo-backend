@@ -88,9 +88,12 @@ jobs:
               sudo apt-get update
               sudo apt-get install -y docker-compose
             fi
-
-            # Pull the latest image from Docker Hub
-            docker pull ${{ vars.DOCKERHUB_USERNAME }}/caveo-backend:latest
+            
+            # Check if docker-compose.yml exists, if not, copy it from the repo
+            if [ ! -f "/home/ubuntu/caveo-backend/docker-compose.yml" ]; then
+              echo "docker-compose.yml not found. Copying from repository..."
+              scp -i "Hirocaveobackend.pem" docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/caveo-backend/
+            fi
 
             # Shut down any running containers from the previous deployment
             docker-compose down
