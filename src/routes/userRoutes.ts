@@ -21,7 +21,7 @@ interface EditRequestBody {
 }
 
 router.get('/', async (ctx) => {
-  ctx.body = "Hello, World!";
+  ctx.body = { message: "Hello, World!" };
 });
 
 router.post("/auth", async (ctx) => {
