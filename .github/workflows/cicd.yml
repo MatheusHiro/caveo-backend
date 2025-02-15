@@ -24,6 +24,16 @@ jobs:
           docker build -t ${{ vars.DOCKERHUB_USERNAME }}/caveo-backend:latest .
           docker push ${{ vars.DOCKERHUB_USERNAME }}/caveo-backend:latest
 
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.SSH_EC2_KEY }}" > Hirocaveobackend.pem
+          chmod 400 Hirocaveobackend.pem
+
+      - name: Automatically accept the host key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+
       - name: Deploy to EC2 via SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_EC2_KEY }}
@@ -40,15 +50,6 @@ jobs:
           COGNITO_ADMIN_ACCESS_KEY: ${{ secrets.COGNITO_ADMIN_ACCESS_KEY }}
           COGNITO_ADMIN_SECRET_ACCESS_KEY: ${{ secrets.COGNITO_ADMIN_SECRET_ACCESS_KEY }}
         run: |
-          echo "$SSH_PRIVATE_KEY" > Hirocaveobackend.pem
-          chmod 400 Hirocaveobackend.pem
-
-          # Create the .ssh directory if it doesn't exist
-          mkdir -p ~/.ssh
-
-          # Automatically accept the host key
-          ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
-
           # SSH into the server
           ssh -i "Hirocaveobackend.pem" $EC2_USER@$EC2_HOST <<EOF
             export DB_USER="${DB_USER}"
@@ -62,7 +63,7 @@ jobs:
             export COGNITO_ADMIN_ACCESS_KEY="${COGNITO_ADMIN_ACCESS_KEY}"
             export COGNITO_ADMIN_SECRET_ACCESS_KEY="${COGNITO_ADMIN_SECRET_ACCESS_KEY}"
 
-            # Verify if the directory exists, if it doesn't, create
+            # Verify if the directory exists, if it doesn't, create it
             if [ ! -d "/home/ubuntu/caveo-backend" ]; then
               echo "Directory not found. Creating..."
               mkdir -p /home/ubuntu/caveo-backend
@@ -92,7 +93,7 @@ jobs:
             # Check if docker-compose.yml exists, if not, copy it from the repo
             if [ ! -f "/home/ubuntu/caveo-backend/docker-compose.yml" ]; then
               echo "docker-compose.yml not found. Copying from repository..."
-              rsync -avz -e "ssh -i Hirocaveobackend.pem" /home/runner/work/caveo-backend/caveo-backend/docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/caveo-backend/
+              scp -i ~/Hirocaveobackend.pem /home/runner/work/caveo-backend/docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/caveo-backend/
             fi
 
             # Shut down any running containers from the previous deployment
