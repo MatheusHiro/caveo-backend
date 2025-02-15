@@ -37,7 +37,7 @@ jobs:
       - name: Check if docker-compose.yml exists on EC2 and copy it if necessary
         run: |
           # SSH to the EC2 instance to check if the file exists
-          ssh -i ~/Hirocaveobackend.pem $EC2_USER@$EC2_HOST <<EOF
+          ssh -i "Hirocaveobackend.pem" $EC2_USER@$EC2_HOST <<EOF
             if [ ! -f "/home/ubuntu/caveo-backend/docker-compose.yml" ]; then
               echo "docker-compose.yml not found. Copying from GitHub Actions runner..."
               exit 0  # Continue with the scp only if the file is missing
