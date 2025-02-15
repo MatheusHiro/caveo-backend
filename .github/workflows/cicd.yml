@@ -34,6 +34,27 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Check if docker-compose.yml exists on EC2 and copy it if necessary
+        run: |
+          # SSH to the EC2 instance to check if the file exists
+          ssh -i ~/Hirocaveobackend.pem $EC2_USER@$EC2_HOST <<EOF
+            if [ ! -f "/home/ubuntu/caveo-backend/docker-compose.yml" ]; then
+              echo "docker-compose.yml not found. Copying from GitHub Actions runner..."
+              exit 0  # Continue with the scp only if the file is missing
+            else
+              echo "docker-compose.yml already exists on the EC2 instance. No need to copy."
+              exit 1  # Skip the copying step if the file exists
+            fi
+          EOF
+
+          # If the file doesn't exist, this will copy it to EC2
+          if [ $? -eq 0 ]; then
+            scp -i ~/Hirocaveobackend.pem ./docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/caveo-backend/
+          else
+            echo "Skipping copy of docker-compose.yml as it already exists."
+          fi
+
+
       - name: Deploy to EC2 via SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_EC2_KEY }}
@@ -89,15 +110,7 @@ jobs:
               sudo apt-get update
               sudo apt-get install -y docker-compose
             fi
-            
-            # Check if docker-compose.yml exists, if not, copy it from the repo
-            if [ ! -f "/home/ubuntu/caveo-backend/docker-compose.yml" ]; then
-              echo "docker-compose.yml not found. Copying from repository..."
-              echo "Current directory: $(pwd)"
-              ls -al "~/"
-              scp -i ~/Hirocaveobackend.pem ~/work/caveo-backend/caveo-backend/docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/caveo-backend/
-            fi
-
+        
             # Shut down any running containers from the previous deployment
             docker-compose down
 
