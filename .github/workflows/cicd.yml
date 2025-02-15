@@ -93,7 +93,9 @@ jobs:
             # Check if docker-compose.yml exists, if not, copy it from the repo
             if [ ! -f "/home/ubuntu/caveo-backend/docker-compose.yml" ]; then
               echo "docker-compose.yml not found. Copying from repository..."
-              scp -i ~/Hirocaveobackend.pem /home/runner/work/caveo-backend/docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/caveo-backend/
+              echo "Current directory: $(pwd)"
+              ls -al /home/runner/work/caveo-backend/
+              scp -i ~/Hirocaveobackend.pem ./docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/caveo-backend/
             fi
 
             # Shut down any running containers from the previous deployment
