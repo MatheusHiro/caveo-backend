@@ -35,6 +35,8 @@ jobs:
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to EC2 via SSH
+        uses: actions/checkout@v4
+
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_EC2_KEY }}
           EC2_USER: "ubuntu"
