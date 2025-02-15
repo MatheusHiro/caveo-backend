@@ -94,7 +94,7 @@ jobs:
             if [ ! -f "/home/ubuntu/caveo-backend/docker-compose.yml" ]; then
               echo "docker-compose.yml not found. Copying from repository..."
               echo "Current directory: $(pwd)"
-              ls -al /home/runner/work/caveo-backend/
+              ls -al /home/runner/work/caveo-backend/caveo-backend
               scp -i ~/Hirocaveobackend.pem ./docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/caveo-backend/
             fi
 
