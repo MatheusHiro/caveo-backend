@@ -35,8 +35,6 @@ jobs:
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to EC2 via SSH
-        uses: actions/checkout@v4
-
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_EC2_KEY }}
           EC2_USER: "ubuntu"
@@ -96,7 +94,7 @@ jobs:
             if [ ! -f "/home/ubuntu/caveo-backend/docker-compose.yml" ]; then
               echo "docker-compose.yml not found. Copying from repository..."
               echo "Current directory: $(pwd)"
-              ls -al /home/runner/work/caveo-backend/caveo-backend
+              ls -al $(pwd)
               scp -i ~/Hirocaveobackend.pem ./docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/caveo-backend/
             fi
 
