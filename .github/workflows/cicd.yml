@@ -52,7 +52,7 @@ jobs:
 
           # If the file doesn't exist, this will copy it to EC2
           if [ $? -eq 0 ]; then
-            scp -i ~/Hirocaveobackend.pem ./docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/caveo-backend/
+            scp -i "Hirocaveobackend.pem" ./docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/caveo-backend/
           else
             echo "Skipping copy of docker-compose.yml as it already exists."
           fi
