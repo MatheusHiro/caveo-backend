@@ -35,6 +35,9 @@ jobs:
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Check if docker-compose.yml exists on EC2 and copy it if necessary
+        env:
+          EC2_USER: "ubuntu"
+          EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
           # SSH to the EC2 instance to check if the file exists
           ssh -i "Hirocaveobackend.pem" $EC2_USER@$EC2_HOST <<EOF
@@ -53,7 +56,6 @@ jobs:
           else
             echo "Skipping copy of docker-compose.yml as it already exists."
           fi
-
 
       - name: Deploy to EC2 via SSH
         env:
