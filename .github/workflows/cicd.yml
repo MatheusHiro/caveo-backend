@@ -57,7 +57,6 @@ jobs:
             echo "Skipping copy of docker-compose.yml as it already exists."
           fi
 
-
       - name: Deploy to EC2 via SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_EC2_KEY }}
@@ -68,6 +67,7 @@ jobs:
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_PORT: ${{ secrets.DB_PORT }}
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
           COGNITO_CLIENT_ID: ${{ secrets.COGNITO_CLIENT_ID }}
           COGNITO_CLIENT_SECRET: ${{ secrets.COGNITO_CLIENT_SECRET }}
           USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
@@ -81,12 +81,13 @@ jobs:
             export DB_NAME="${DB_NAME}"
             export DB_HOST="${DB_HOST}"
             export DB_PORT="${DB_PORT}"
+            export DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME}"
             export COGNITO_CLIENT_ID="${COGNITO_CLIENT_ID}"
             export COGNITO_CLIENT_SECRET="${COGNITO_CLIENT_SECRET}"
             export USER_POOL_ID="${USER_POOL_ID}"
             export COGNITO_ADMIN_ACCESS_KEY="${COGNITO_ADMIN_ACCESS_KEY}"
             export COGNITO_ADMIN_SECRET_ACCESS_KEY="${COGNITO_ADMIN_SECRET_ACCESS_KEY}"
-
+            
             # Verify if the directory exists, if it doesn't, create it
             if [ ! -d "/home/ubuntu/caveo-backend" ]; then
               echo "Directory not found. Creating..."

@@ -13,7 +13,7 @@ services:
       POSTGRES_DB: ${DB_NAME}
 
   api:
-    image: ${{ vars.DOCKERHUB_USERNAME }}/caveo-backend:latest
+    image: ${DOCKERHUB_USERNAME}/caveo-backend:latest
     ports:
       - "3000:3000"
     environment:
